@@ -399,7 +399,10 @@
                     <h3 class="text-xl font-bold text-brand-navy mb-2">Upload Inspection Report</h3>
                     <p class="text-xs text-slate-600 mb-6">Attach your insurance surveyor report for a fast defect rectification quote.</p>
 
-                    <form id="inspectionForm" onsubmit="handleInspectionSubmit(event)" enctype="multipart/form-data" class="space-y-4">
+                    <form id="inspectionForm" action="https://formsubmit.co/info@icareelevators.co.uk" method="POST" enctype="multipart/form-data" onsubmit="handleInspectionSubmit(event)" class="space-y-4">
+                        <input type="hidden" name="_subject" value="New Inspection Report Submission">
+                        <input type="hidden" name="_captcha" value="false">
+                        
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Building Name / Company *</label>
                             <input type="text" name="buildingName" required class="w-full bg-slate-50 border border-slate-300 rounded px-3.5 py-2.5 text-xs focus:outline-none focus:border-brand-blue" placeholder="e.g. Abbey House Management">
@@ -601,11 +604,10 @@
     <script>
         lucide.createIcons();
 
-        // CONFIGURATION: Set endpoint URLs here
+        // CONFIGURATION
         const ENQUIRY_ENDPOINT = 'https://formbold.com/s/oyBWA';
-        const INSPECTION_ENDPOINT = 'https://formsubmit.co/ajax/info@icareelevators.co.uk';
 
-        // 1. Submit General Enquiry Form
+        // 1. Submit General Enquiry Form (Uses Fetch / No file upload)
         async function handleEnquirySubmit(event) {
             event.preventDefault();
             const form = event.target;
@@ -638,37 +640,16 @@
             }
         }
 
-        // 2. Submit Inspection Report Form (Handles PDF File Uploads)
-        async function handleInspectionSubmit(event) {
-            event.preventDefault();
-            const form = event.target;
+        // 2. Submit Inspection Report Form (Uses Native Post / Supports File Upload)
+        function handleInspectionSubmit(event) {
+            // We do NOT use event.preventDefault() here so the browser natively submits the form to FormSubmit.co
             const submitBtn = document.getElementById('inspectionBtn');
             
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Uploading File & Sending...';
-
-            const formData = new FormData(form);
-
-            try {
-                const response = await fetch(INSPECTION_ENDPOINT, {
-                    method: 'POST',
-                    body: formData,
-                    headers: { 'Accept': 'application/json' }
-                });
-
-                if (response.ok) {
-                    alert('Inspection report and file uploaded successfully! An engineer will review it shortly.');
-                    form.reset();
-                } else {
-                    alert('Failed to send inspection report. Please check the file format and try again.');
-                }
-            } catch (error) {
-                console.error('Error uploading inspection report:', error);
-                alert('Network error during file upload. Please try again.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = 'Submit for Engineer Review';
-            }
+            // Delay disabling the button slightly so the native form submission isn't blocked by the browser
+            setTimeout(() => {
+                submitBtn.disabled = true;
+                submitBtn.innerText = 'Uploading File & Sending...';
+            }, 50);
         }
     </script>
 </body>
